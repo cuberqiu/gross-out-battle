@@ -210,3 +210,7 @@ npm test
 ```
 
 Screenshots land in `screenshots/`.
+
+## 部署
+
+游戏部署在 <http://101.96.221.193:43123>，由 systemd --user 服务 `gross-out-battle` 运行。
