@@ -3,8 +3,8 @@ import { createServer } from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { WebSocketServer, type WebSocket } from 'ws'
-import type { ClientMsg } from '../shared/types'
 import { handleClose, handleMessage, roomCount, timings, type Sock } from './rooms'
+import { mountRealtime, readClientText } from './rt'
 
 const isProd = process.env.NODE_ENV === 'production'
 const PORT = isProd ? Number(process.env.PORT) || 43123 : 43124
@@ -19,10 +19,12 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true, rooms: roomCount(), timings })
 })
 
+mountRealtime(app)
+
 if (isProd) {
   app.use(express.static(dist))
   app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/ws')) return next()
+    if (req.path.startsWith('/ws') || req.path.startsWith('/rt')) return next()
     res.sendFile(path.join(dist, 'index.html'), (error) => {
       if (error) next(error)
     })
@@ -45,15 +47,8 @@ wss.on('connection', (ws: AliveSocket) => {
     /* close handler finishes the cleanup */
   })
   ws.on('message', (data) => {
-    const text = data.toString()
-    if (text.length > 4000) return
-    let msg: ClientMsg
-    try {
-      msg = JSON.parse(text) as ClientMsg
-    } catch {
-      return
-    }
-    if (!msg || typeof msg !== 'object' || typeof (msg as { t?: unknown }).t !== 'string') return
+    const msg = readClientText(data.toString())
+    if (!msg) return
     handleMessage(sock, msg)
   })
   ws.on('close', () => handleClose(sock))

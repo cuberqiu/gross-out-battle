@@ -265,6 +265,49 @@ test('mixed mode alternates throwing and a sync question', async ({ browser }) =
   }
 })
 
+test('http transport creates, joins, and starts against a websocket peer', async ({ browser }) => {
+  const [desktop, phone] = await contexts(browser)
+  const host = await desktop.newPage()
+  const guest = await phone.newPage()
+  let hostSockets = 0
+  host.on('websocket', () => {
+    hostSockets += 1
+  })
+  const guestSocket = guest.waitForEvent('websocket')
+  try {
+    const opened = host.waitForResponse((res) => res.url().includes('/rt/open') && res.status() === 200)
+    await host.goto('/?transport=http')
+    await opened
+    await dismissHowTo(host)
+    await host.getByTestId('nickname').fill('臭臭侠')
+    await expect(host.getByTestId('create-room')).toBeEnabled()
+    expect(hostSockets).toBe(0)
+    await host.getByTestId('create-room').click()
+    await expect(host.getByTestId('room-code')).toBeVisible()
+    const code = (await host.getByTestId('room-code').innerText()).trim()
+    expect(code).toMatch(/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/)
+
+    await guest.goto(`/?room=${code}`)
+    await guestSocket
+    await dismissHowTo(guest)
+    await guest.getByTestId('nickname').fill('番茄投手')
+    await guest.getByTestId('join-room').click()
+    await expect(host.getByText('番茄投手')).toBeVisible()
+    await expect(host.getByTestId('start-game')).toBeEnabled()
+    await host.getByTestId('start-game').click()
+    await expect(host.getByTestId('arena')).toHaveAttribute('data-phase', 'battle')
+    await expect(guest.getByTestId('arena')).toHaveAttribute('data-phase', 'battle')
+
+    await throwAt(host, 'sock', 0.42, 0.46)
+    await expect(guest.locator('[data-item="sock"]')).toBeVisible()
+    await throwAt(guest, 'tomato', 0.55, 0.4)
+    await expect(host.locator('[data-item="tomato"]')).toBeVisible()
+    expect(hostSockets).toBe(0)
+  } finally {
+    await closePair(desktop, phone)
+  }
+})
+
 test('a dropped friend pauses the round and then forfeits', async ({ browser }) => {
   const [desktop, phone] = await contexts(browser)
   const host = await desktop.newPage()

@@ -16,6 +16,12 @@ export default defineConfig({
         target: 'http://127.0.0.1:43124',
         changeOrigin: true,
       },
+      '/rt': {
+        target: 'http://127.0.0.1:43124',
+        changeOrigin: true,
+        proxyTimeout: 30_000,
+        timeout: 30_000,
+      },
     },
   },
   build: {

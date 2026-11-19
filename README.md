@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-浏览器打开 [http://127.0.0.1:43123](http://127.0.0.1:43123)。开发时网页在 43123，对战服务器在 43124，Vite 会把 `/ws` 和 `/health` 代理过去。
+浏览器打开 [http://127.0.0.1:43123](http://127.0.0.1:43123)。开发时网页在 43123，对战服务器在 43124，Vite 会把 `/ws`、`/rt` 和 `/health` 代理过去。
 
 生产模式是一个进程同时提供网页和 WebSocket：
 
@@ -44,6 +44,8 @@ npm run dev
 npm run build
 NODE_ENV=production PORT=43123 npm start
 ```
+
+有的手机网络和微信内置浏览器会把 WebSocket 升级丢掉。页面会先连 `/ws`；大约 3 秒还没打开，或者连续两次在打开前就断开，这一局就改走同一端口的 HTTP（`POST /rt/open`、`GET /rt/poll` 长轮询约 20 秒、`POST /rt/send`），不再换回 WebSocket。扔东西会多大约一两百毫秒。这些响应不缓存。测试时打开 `?transport=http` 可以强制走 HTTP。
 
 ## 环境变量
 
@@ -61,7 +63,7 @@ NODE_ENV=production PORT=43123 npm start
 
 ## 部署
 
-房间状态在内存里。只跑一个进程，反向代理要把 WebSocket 升级转过去。
+房间状态在内存里。只跑一个进程。反向代理要把 WebSocket 升级转过去；连不上 WebSocket 的客户端会改走 `/rt`，那是普通 HTTP，不要缓存。`/rt/poll` 会挂起大约 20 秒，代理的读超时要大于这个时间。
 
 Node：
 
@@ -140,7 +142,7 @@ npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:43123](http://127.0.0.1:43123). In development the site is on 43123 and the game server is on 43124. Vite proxies `/ws` and `/health`.
+Open [http://127.0.0.1:43123](http://127.0.0.1:43123). In development the site is on 43123 and the game server is on 43124. Vite proxies `/ws`, `/rt`, and `/health`.
 
 Production serves the site and the WebSocket from one process:
 
@@ -148,6 +150,8 @@ Production serves the site and the WebSocket from one process:
 npm run build
 NODE_ENV=production PORT=43123 npm start
 ```
+
+Some mobile networks and WeChat's in-app browser drop the WebSocket upgrade. The page tries `/ws` first. If it is not open within about 3 seconds, or it fails twice before ever opening, that session switches to HTTP on the same port and stays there: `POST /rt/open`, a long poll on `GET /rt/poll` (about 20 seconds), and `POST /rt/send`. Throws pick up a few hundred milliseconds. Those responses are not cached. Add `?transport=http` to force the fallback.
 
 ## Environment
 
@@ -165,7 +169,7 @@ NODE_ENV=production PORT=43123 npm start
 
 ## Deploy
 
-Keep a single instance. The process stores rooms in memory. The reverse proxy must forward the WebSocket upgrade.
+Keep a single instance. The process stores rooms in memory. The reverse proxy must forward the WebSocket upgrade. Clients that cannot open a socket use `/rt` instead, which is plain HTTP and must not be cached. `/rt/poll` stays open for about 20 seconds, so the proxy read timeout has to be longer than that.
 
 ```bash
 npm ci

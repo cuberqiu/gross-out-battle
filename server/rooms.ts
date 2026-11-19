@@ -1,4 +1,3 @@
-import { WebSocket } from 'ws'
 import { ITEMS, itemById } from '../shared/items'
 import { QUESTIONS } from '../shared/questions'
 import {
@@ -39,10 +38,19 @@ export const timings = {
 
 type ServerSplat = Snapshot['splats'][number] & { points: number; targetPid: string }
 
+/** Socket or HTTP long-poll session. `readyState === LINK_OPEN` means it can take a message. */
+export type Link = {
+  readyState: number
+  send(data: string): void
+  close(): void
+}
+
+export const LINK_OPEN = 1
+
 type Player = {
   pid: string
   name: string
-  ws: WebSocket | null
+  ws: Link | null
   connected: boolean
   host: boolean
   rematch: boolean
@@ -82,15 +90,15 @@ type Room = {
 }
 
 export type Sock = {
-  ws: WebSocket
+  ws: Link
   roomCode: string | null
   pid: string | null
 }
 
 const rooms = new Map<string, Room>()
 
-function send(ws: WebSocket | null, msg: Snapshot | ServerEvent | ErrorMsg | { t: 'bye' }) {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return
+function send(ws: Link | null, msg: Snapshot | ServerEvent | ErrorMsg | { t: 'bye' }) {
+  if (!ws || ws.readyState !== LINK_OPEN) return
   try {
     ws.send(JSON.stringify(msg))
   } catch {
@@ -98,7 +106,7 @@ function send(ws: WebSocket | null, msg: Snapshot | ServerEvent | ErrorMsg | { t
   }
 }
 
-function fail(ws: WebSocket, message: string, code: ErrorMsg['code'], room?: string) {
+function fail(ws: Link, message: string, code: ErrorMsg['code'], room?: string) {
   send(ws, { t: 'error', message, code, room })
 }
 
@@ -534,7 +542,7 @@ function createRoom(mode: Mode): Room {
   return room
 }
 
-function addPlayer(room: Room, name: string, ws: WebSocket, host: boolean): Player {
+function addPlayer(room: Room, name: string, ws: Link, host: boolean): Player {
   const player: Player = {
     pid: makePid(),
     name,
