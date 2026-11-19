@@ -1,0 +1,98 @@
+import type { ItemDef } from './types'
+
+export const ITEMS: ItemDef[] = [
+  {
+    id: 'sock',
+    name: '臭袜子',
+    short: '臭袜',
+    points: 8,
+    radius: 0.13,
+    health: 78,
+    effect: 'stink',
+    hint: '有一股很具体的味道',
+    color: '#f3d2a4',
+  },
+  {
+    id: 'tomato',
+    name: '烂番茄',
+    short: '番茄',
+    points: 10,
+    radius: 0.14,
+    health: 74,
+    effect: 'shake',
+    hint: '糊上去会晃一下屏幕',
+    color: '#ff8d7a',
+  },
+  {
+    id: 'snot',
+    name: '鼻涕泡',
+    short: '鼻涕',
+    points: 9,
+    radius: 0.12,
+    health: 68,
+    effect: 'drip',
+    hint: '会慢慢滴下来',
+    color: '#e7fff1',
+  },
+  {
+    id: 'slime',
+    name: '黏糊糊的史莱姆',
+    short: '史莱姆',
+    points: 16,
+    radius: 0.18,
+    health: 210,
+    effect: 'slime',
+    hint: '又大又黏，要多擦几下',
+    color: '#d6ff4a',
+  },
+  {
+    id: 'fart',
+    name: '放屁云',
+    short: '屁云',
+    points: 12,
+    radius: 0.16,
+    health: 88,
+    effect: 'fart',
+    hint: '自带一声不好意思',
+    color: '#e4ffc2',
+  },
+  {
+    id: 'roach',
+    name: '蟑螂贴纸',
+    short: '蟑螂',
+    points: 14,
+    radius: 0.11,
+    health: 64,
+    effect: 'crawl',
+    hint: '贴纸会在屏幕上爬',
+    color: '#f0ddc2',
+  },
+  {
+    id: 'wasabi',
+    name: '芥末喷射',
+    short: '芥末',
+    points: 11,
+    radius: 0.13,
+    health: 82,
+    effect: 'flip',
+    hint: '对方屏幕倒转两秒',
+    color: '#f3ff9a',
+  },
+  {
+    id: 'leftover',
+    name: '隔夜外卖',
+    short: '外卖',
+    points: 15,
+    radius: 0.15,
+    health: 120,
+    effect: 'plop',
+    hint: '一整盒拍在屏幕上',
+    color: '#ffd7a1',
+  },
+]
+
+export const ITEM_MAP = new Map(ITEMS.map((item) => [item.id, item]))
+
+export function itemById(id: string): ItemDef | undefined {
+  return ITEM_MAP.get(id)
+}
