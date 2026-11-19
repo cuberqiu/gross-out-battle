@@ -1,0 +1,17 @@
+{
+  "name": "gross-out-battle",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "互相恶心大作战 —— 双人在线搞怪小游戏",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/e2e.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

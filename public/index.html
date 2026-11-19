@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#f7f0d8" />
+    <meta name="description" content="互相恶心大作战：双人在线互丢卡通垃圾，顺便测试一下你们到底有没有默契。" />
+    <title>互相恶心大作战 · 双人搞怪小游戏</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="world-bg" aria-hidden="true">
+      <span class="bg-blob bg-blob-1"></span>
+      <span class="bg-blob bg-blob-2"></span>
+      <span class="bg-blob bg-blob-3"></span>
+      <span class="bg-doodle doodle-1">🧦</span>
+      <span class="bg-doodle doodle-2">🍅</span>
+      <span class="bg-doodle doodle-3">🪳</span>
+      <span class="bg-doodle doodle-4">💨</span>
+      <div class="grain"></div>
+    </div>
+
+    <div class="app-shell">
+      <header class="app-header">
+        <button class="brand" id="brandBtn" type="button" aria-label="回到首页">
+          <span class="brand-splat">🤢</span>
+          <span class="brand-copy">
+            <strong>互相恶心</strong>
+            <small>大作战</small>
+          </span>
+        </button>
+        <div class="header-actions">
+          <button class="icon-btn" id="soundBtn" type="button" aria-label="切换声音" title="声音开关">🔊</button>
+          <button class="icon-btn help-btn" id="helpBtn" type="button" aria-label="查看玩法" title="怎么玩">?</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section class="screen screen-home" id="homeScreen" aria-labelledby="homeTitle">
+          <div class="hero">
+            <div class="hero-stickers" aria-hidden="true">
+              <span class="sticker sticker-a">双人同行</span>
+              <span class="sticker sticker-b">有点臭味</span>
+            </div>
+            <div class="hero-mascot" aria-hidden="true">
+              <span class="mascot mascot-left">🤢</span>
+              <span class="mascot mascot-right">🤡</span>
+              <span class="mascot-splat"></span>
+            </div>
+            <h1 id="homeTitle">
+              <span>互相恶心</span>
+              <em>大作战</em>
+            </h1>
+            <p class="hero-copy">
+              和好朋友互丢卡通垃圾，看看谁先破防。<br />
+              没有真恶心，只有真感情（大概）。
+            </p>
+            <button class="joke-pill" id="jokeBtn" type="button">
+              <span>💔</span> “我们好像没有默契了。” <b>→ 来测测</b>
+            </button>
+          </div>
+
+          <div class="home-cards">
+            <div class="panel panel-create">
+              <div class="panel-icon">🎪</div>
+              <div class="panel-heading">
+                <h2>开个房间</h2>
+                <p>拿房间码去祸害朋友</p>
+              </div>
+              <label class="field">
+                <span>你的花名</span>
+                <input id="nameInput" type="text" maxlength="12" placeholder="臭屁王" autocomplete="nickname" />
+              </label>
+              <button class="btn btn-primary btn-block" id="createBtn" type="button">
+                <span>创建房间</span>
+                <b class="btn-arrow">→</b>
+              </button>
+            </div>
+
+            <div class="panel panel-join">
+              <div class="panel-icon">🚪</div>
+              <div class="panel-heading">
+                <h2>加入战局</h2>
+                <p>输入朋友给的 4 位房间码</p>
+              </div>
+              <label class="field">
+                <span>房间码</span>
+                <input
+                  id="codeInput"
+                  class="code-input"
+                  type="text"
+                  maxlength="4"
+                  inputmode="text"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  placeholder="XXXX"
+                  autocomplete="off"
+                />
+                <small id="inviteHint" class="field-hint hidden">朋友正在等你进房</small>
+              </label>
+              <button class="btn btn-secondary btn-block" id="joinBtn" type="button">
+                <span>加入房间</span>
+                <b class="btn-arrow">→</b>
+              </button>
+            </div>
+          </div>
+
+          <div class="home-footnote">
+            <span>📱 手机 / 💻 电脑都能玩</span>
+            <span>🎨 全员手绘级丑萌</span>
+            <span>🔊 自带放屁音效</span>
+          </div>
+        </section>
+
+        <section class="screen screen-lobby" id="lobbyScreen" aria-labelledby="lobbyTitle">
+          <div class="lobby-head">
+            <div>
+              <p class="eyebrow">作战准备室</p>
+              <h2 id="lobbyTitle">等对方接招</h2>
+            </div>
+            <div class="room-ticket">
+              <div>
+                <small>房间码</small>
+                <strong id="lobbyCode">----</strong>
+              </div>
+              <button class="copy-btn" id="copyCodeBtn" type="button">复制</button>
+            </div>
+          </div>
+
+          <div class="lobby-players" id="lobbyPlayers" aria-live="polite"></div>
+
+          <div class="mode-section">
+            <div class="section-title">
+              <h3>选个玩法</h3>
+              <p>任一人可切换 · 房主开战</p>
+            </div>
+            <div class="mode-grid" id="modeGrid"></div>
+          </div>
+
+          <div class="lobby-actions">
+            <div class="lobby-status" id="lobbyStatus">把房间码发给朋友吧</div>
+            <div class="lobby-buttons">
+              <button class="btn btn-ghost" id="shareBtn" type="button">复制邀请链接</button>
+              <button class="btn btn-primary btn-start" id="startBtn" type="button" disabled>
+                <span>开战！</span>
+                <b class="btn-arrow">💥</b>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen screen-game" id="gameScreen" aria-labelledby="gameTitle">
+          <h2 class="sr-only" id="gameTitle">游戏进行中</h2>
+          <div class="game-hud">
+            <div class="hud-player" id="hudMe">
+              <span class="hud-avatar" id="hudMeAvatar">🤢</span>
+              <div class="hud-name-wrap">
+                <strong id="hudMeName">我</strong>
+                <span id="hudMeStats">0 糊 · 0%</span>
+              </div>
+            </div>
+            <div class="hud-clock">
+              <div class="clock-main"><span id="timerNum">--</span><small>秒</small></div>
+              <div class="clock-caption" id="timerLabel">准备中</div>
+              <div class="clock-bar"><i id="timerFill"></i></div>
+            </div>
+            <div class="hud-player hud-player-right" id="hudOpp">
+              <div class="hud-name-wrap">
+                <strong id="hudOppName">对方</strong>
+                <span id="hudOppStats">0 糊 · 0%</span>
+              </div>
+              <span class="hud-avatar" id="hudOppAvatar">🤡</span>
+            </div>
+          </div>
+
+          <div class="scene battle-scene" id="battleScene">
+            <div class="battle-stage" id="battleStage">
+              <div class="battle-field" id="battleField">
+                <div class="field-wallpaper" aria-hidden="true">
+                  <span>🧦</span><span>🍅</span><span>🫧</span><span>💨</span><span>🪳</span><span>🟢</span>
+                </div>
+                <div class="splat-layer" id="splatLayer"></div>
+                <div class="wipe-hint" id="wipeHint">
+                  <span>👉</span> 在屏幕上疯狂摩擦，擦掉对方的垃圾！
+                </div>
+                <div class="roach-layer" id="roachLayer" aria-hidden="true"></div>
+                <div class="stink-layer" id="stinkLayer" aria-hidden="true"></div>
+                <div class="combo-feed" id="comboFeed" aria-live="polite"></div>
+                <div class="battle-badge" id="battleBadge">第 1 回合</div>
+              </div>
+
+              <div class="battle-footer">
+                <div class="dock-label">
+                  <span>砸他！</span>
+                  <small>点道具直接丢 · 对手要自己擦</small>
+                </div>
+                <div class="item-dock" id="itemDock"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scene quiz-scene" id="quizScene">
+            <div class="quiz-card">
+              <div class="quiz-topline">
+                <span class="quiz-chip" id="quizChip">默契题 1/5</span>
+                <span class="quiz-clock" id="quizClock">10s</span>
+              </div>
+              <div class="quiz-progress"><i id="quizProgressFill"></i></div>
+              <p class="quiz-prompt">同时作答，要选得一模一样哦</p>
+              <h3 class="quiz-question" id="quizQuestion">题目加载中…</h3>
+              <div class="quiz-options" id="quizOptions"></div>
+              <div class="quiz-waiting" id="quizWaiting">
+                <span class="dot-pulse"></span>
+                <span id="quizWaitingText">等对方作答…</span>
+              </div>
+            </div>
+            <div class="quiz-gross-layer" id="quizGrossLayer" aria-hidden="true"></div>
+            <div class="quiz-banner hidden" id="quizBanner" aria-live="assertive"></div>
+          </div>
+
+          <div class="stage-overlay hidden" id="stageIntroOverlay">
+            <div class="stage-overlay-inner">
+              <div class="stage-kicker" id="stageIntroKicker">第 1 幕</div>
+              <div class="stage-big-emoji" id="stageIntroEmoji">💥</div>
+              <h2 id="stageIntroTitle">恶心大作战</h2>
+              <p id="stageIntroSub">准备接招</p>
+              <div class="countdown-ring" id="stageIntroRing"><span id="stageIntroCount">3</span></div>
+            </div>
+          </div>
+
+          <div class="pause-overlay hidden" id="pauseOverlay">
+            <div class="pause-card">
+              <span class="pause-emoji">📡</span>
+              <h3>连接掉线了</h3>
+              <p id="pauseText">对方掉线，比赛自动暂停。等一等正在重新连线…</p>
+              <div class="mini-loader"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen screen-result" id="resultScreen" aria-labelledby="resultTitle">
+          <div class="result-hero">
+            <p class="eyebrow" id="resultEyebrow">本局战报</p>
+            <h2 id="resultTitle">你是今日最臭王</h2>
+            <p id="resultSubtitle">恭喜，臭味已经传遍整个互联网。</p>
+            <div class="result-mascot" id="resultMascot">🤢</div>
+            <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+          </div>
+
+          <div class="result-main">
+            <div class="sync-gauge-card">
+              <div class="sync-gauge" id="syncGauge">
+                <div class="sync-gauge-inner">
+                  <strong id="syncIndex">0%</strong>
+                  <span>默契指数</span>
+                </div>
+              </div>
+              <h3 id="verdictTitle">已经没有默契了</h3>
+              <p id="verdictSub">建议重连脑电波。</p>
+              <div class="sync-breakdown" id="syncBreakdown"></div>
+            </div>
+            <div class="result-scoreboard" id="resultScoreboard"></div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-primary btn-rematch" id="rematchBtn" type="button">
+              <span>再来一局</span><b class="btn-arrow">🔄</b>
+            </button>
+            <button class="btn btn-ghost hidden" id="toLobbyBtn" type="button">回大厅换模式</button>
+            <p class="rematch-hint" id="rematchHint">双方都按下就重开</p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="app-footer" id="appFooter">
+        <span>🤢 100% 卡通垃圾，不含真实生化武器</span>
+        <span>玩完记得和好</span>
+      </footer>
+    </div>
+
+    <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+    <div class="connection-banner hidden" id="connectionBanner">
+      <span class="banner-dot"></span>
+      <span id="connectionText">连接中…</span>
+    </div>
+
+    <div class="modal hidden" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="modal-backdrop" data-close-help></div>
+      <div class="modal-card howto-card">
+        <button class="modal-close" id="helpCloseBtn" type="button" aria-label="关闭">×</button>
+        <p class="eyebrow">三分钟上手</p>
+        <h2 id="helpTitle">这游戏怎么玩？</h2>
+        <div class="howto-steps">
+          <div class="howto-step">
+            <span class="step-num">1</span>
+            <div><strong>开房 &amp; 邀请</strong><p>一人创建房间，把 4 位房间码或链接发给朋友。</p></div>
+          </div>
+          <div class="howto-step">
+            <span class="step-num">2</span>
+            <div><strong>选模式开战</strong><p>恶心大作战、默契大考验，或者两个都要的混合双打。</p></div>
+          </div>
+          <div class="howto-step">
+            <span class="step-num">3</span>
+            <div><strong>互丢 &amp; 狂擦</strong><p>点底部道具糊对方屏幕；自己被糊了就疯狂滑动擦掉。擦得越快越顶。</p></div>
+          </div>
+          <div class="howto-step">
+            <span class="step-num">4</span>
+            <div><strong>测默契</strong><p>两人同时答同一题。选一样：默契 +1；选不一样：两边一起被垃圾淹没。</p></div>
+          </div>
+        </div>
+        <div class="howto-tip">
+          <strong>小提示</strong>
+          <p>双方几乎同时丢出同一种道具，会触发“居然有默契！”额外加分。放屁云有音效，颠倒泡泡会把屏幕倒过来，别慌。</p>
+        </div>
+        <button class="btn btn-primary btn-block" id="helpGotItBtn" type="button">懂了，开恶心</button>
+      </div>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
